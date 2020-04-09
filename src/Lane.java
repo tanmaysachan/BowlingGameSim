@@ -268,8 +268,7 @@ public class Lane extends Thread implements PinsetterObserver {
 						for (Object o : printVector) {
 							if (Objects.equals(thisBowler.getNickName(), o)) {
 								System.out.println("Printing " + thisBowler.getNickName());
-								sr.sendPrintout();
-							}
+								sr.sendPrintout(); }
 						}
 
 					}
@@ -282,7 +281,7 @@ public class Lane extends Thread implements PinsetterObserver {
 			} catch (Exception ignored) {}
 		}
 	}
-	
+
 	/** recievePinsetterEvent()
 	 * 
 	 * recieves the thrown event from the pinsetter

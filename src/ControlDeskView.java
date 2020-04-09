@@ -17,21 +17,20 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 
 import java.util.*;
 
 public class ControlDeskView implements ActionListener, ControlDeskObserver {
 
-	private final JButton addParty;
-	private final JButton finished;
-	private final JButton assign;
-	private final JFrame win;
-	private final JList partyList;
+	private JButton addParty, finished, assign,query;
+	private JFrame win;
+	private JList partyList;
 	
 	/** The maximum  number of members in a party */
-	private final int maxMembers;
+	private int maxMembers;
 	
-	private final ControlDesk controlDesk;
+	private ControlDesk controlDesk;
 
 	/**
 	 * Displays a GUI representation of the ControlDesk
@@ -76,6 +75,13 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 		finished.addActionListener(this);
 		finishedPanel.add(finished);
 		controlsPanel.add(finishedPanel);
+		
+		query = new JButton("Query");
+		JPanel query_score = new JPanel();
+		query_score.setLayout(new FlowLayout());
+		query.addActionListener(this);
+		query_score.add(query);
+		controlsPanel.add(query_score);
 
 		// Lane Status Panel
 		JPanel laneStatusPanel = new JPanel();
@@ -89,7 +95,7 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 			Lane curLane = (Lane) it.next();
 			LaneStatusView laneStat = new LaneStatusView(curLane,(laneCount+1));
 			curLane.subhandler.subscribe(laneStat);
-			curLane.getPinsetter().subscribe(laneStat);
+			((Pinsetter)curLane.getPinsetter()).subscribe(laneStat);
 			JPanel lanePanel = laneStat.showLane();
 			lanePanel.setBorder(new TitledBorder("Lane" + ++laneCount ));
 			laneStatusPanel.add(lanePanel);
@@ -133,7 +139,7 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 		win.setLocation(
 			((screenSize.width) / 2) - ((win.getSize().width) / 2),
 			((screenSize.height) / 2) - ((win.getSize().height) / 2));
-		win.setVisible(true);
+		win.show();
 
 	}
 
@@ -152,8 +158,11 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 			controlDesk.assignLane();
 		}
 		if (e.getSource().equals(finished)) {
-			win.setVisible(false);
+			win.hide();
 			System.exit(0);
+		}
+		if(e.getSource().equals(query)) {
+			QueryView viewquery = new QueryView(this);
 		}
 	}
 
@@ -176,6 +185,6 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 	 */
 
 	public void receiveControlDeskEvent(ControlDeskEvent ce) {
-		partyList.setListData(ce.getPartyQueue());
+		partyList.setListData(((Vector) ce.getPartyQueue()));
 	}
 }

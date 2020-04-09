@@ -41,5 +41,62 @@ public class ScoreHistoryFile {
 		}
 		return scores;
 	}
-
+	
+	public static String top_score(String nick)
+		throws IOException, FileNotFoundException {
+		int multi = -1;
+		 Writer writer 
+         = new PrintWriter(System.out);
+		BufferedReader in =
+				new BufferedReader(new FileReader(SCOREHISTORY_DAT));
+		String data;
+		while ((data = in.readLine()) != null) {
+			// File format is nick\tfname\te-mail
+			String[] scoredata = data.split("\t");
+			//"Nick: scoredata[0] Date: scoredata[1] Score: scoredata[2]
+			if (nick.equals(scoredata[0])) {
+				int val = -1;
+				try { 
+		            val = Integer.parseInt(scoredata[2]);
+		        }
+		        catch (NumberFormatException e) { 
+		  
+		            // This is thrown when the String 
+		            // contains characters other than digits 
+		            System.out.println("Invalid String"); 
+		        }
+				if (val > multi) {
+					multi = val;
+				}
+			}
+		}
+		return Integer.toString(multi);
+	}
+	
+	public static String high_score()
+		throws IOException, FileNotFoundException {
+		int multi = -1;
+		BufferedReader in =
+				new BufferedReader(new FileReader(SCOREHISTORY_DAT));
+		String data;
+		while ((data = in.readLine()) != null) {
+			// File format is nick\tfname\te-mail
+			String[] scoredata = data.split("\t");
+			//"Nick: scoredata[0] Date: scoredata[1] Score: scoredata[2]
+			int val = -1;
+			try { 
+	            val = Integer.parseInt(scoredata[2]);
+	        }
+	        catch (NumberFormatException e) { 
+	  
+	            // This is thrown when the String 
+	            // contains characters other than digits 
+	            System.out.println("Invalid String"); 
+	        }
+			if (val > multi) {
+				multi = val;
+			}
+		}
+		return Integer.toString(multi);
+	}
 }
