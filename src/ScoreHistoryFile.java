@@ -99,4 +99,27 @@ public class ScoreHistoryFile {
 		}
 		return Integer.toString(multi);
 	}
+	
+	public static Vector getlastScores(String nick)
+		throws IOException, FileNotFoundException {
+		Vector scores = new Vector();
+		Vector new_scores = new Vector();
+		BufferedReader in =
+			new BufferedReader(new FileReader(SCOREHISTORY_DAT));
+		String data;
+		while ((data = in.readLine()) != null) {
+			// File format is nick\tfname\te-mail
+			String[] scoredata = data.split("\t");
+			//"Nick: scoredata[0] Date: scoredata[1] Score: scoredata[2]
+			if (nick.equals(scoredata[0])) {
+				String s = scoredata[1] + " \t " + scoredata[2] + "\t";
+				scores.add(s);
+			}
+		}
+	
+		for(int i = scores.size() - 1; i >= 0; i--){
+			new_scores.add(scores.elementAt(i));
+		}
+		return new_scores;
+	}
 }

@@ -23,7 +23,7 @@ import java.util.*;
 
 public class ControlDeskView implements ActionListener, ControlDeskObserver {
 
-	private JButton addParty, finished, assign,query;
+	private JButton addParty, finished, assign, query, pause, resume;
 	private JFrame win;
 	private JList partyList;
 	
@@ -83,6 +83,20 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 		query_score.add(query);
 		controlsPanel.add(query_score);
 
+		pause = new JButton("Pause and Save");
+		JPanel save = new JPanel();
+		save.setLayout(new FlowLayout());
+		pause.addActionListener(this);
+		save.add(pause);
+		controlsPanel.add(save);
+
+		resume = new JButton("Resume");
+		JPanel res = new JPanel();
+		res.setLayout(new FlowLayout());
+		resume.addActionListener(this);
+		res.add(resume);
+		controlsPanel.add(res);
+
 		// Lane Status Panel
 		JPanel laneStatusPanel = new JPanel();
 		laneStatusPanel.setLayout(new GridLayout(numLanes, 1));
@@ -139,7 +153,7 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 		win.setLocation(
 			((screenSize.width) / 2) - ((win.getSize().width) / 2),
 			((screenSize.height) / 2) - ((win.getSize().height) / 2));
-		win.show();
+		win.setVisible(true);
 
 	}
 
@@ -163,6 +177,12 @@ public class ControlDeskView implements ActionListener, ControlDeskObserver {
 		}
 		if(e.getSource().equals(query)) {
 			QueryView viewquery = new QueryView(this);
+		}
+		if(e.getSource().equals(pause)) {
+		    controlDesk.pause();
+		}
+		if(e.getSource().equals(resume)){
+		    controlDesk.res();
 		}
 	}
 

@@ -132,17 +132,25 @@
  */
 
 import java.util.*;
+import java.io.Serializable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-public class Lane extends Thread implements PinsetterObserver {	
+public class Lane extends Thread implements PinsetterObserver, Serializable {
+	private Boolean expired;
 	private Party party;
-	private final Pinsetter setter;
-	private final HashMap scores;
+	private Pinsetter setter;
+	private HashMap scores;
 
 	private boolean gameIsHalted;
 
 	private boolean partyAssigned;
 	private boolean gameFinished;
 	private Iterator bowlerIterator;
+	private int curBowler;
 	private int ball;
 	private int bowlIndex;
 	private int frameNumber;
@@ -151,14 +159,18 @@ public class Lane extends Thread implements PinsetterObserver {
 	private int[] curScores;
 	private int[][] cumulScores;
 	private boolean canThrowAgain;
-	private final Scorer scorer;
+	private Scorer scorer;
 	
 	private int[][] finalScores;
 	private int gameNumber;
 	
 	private Bowler currentThrower;			// = the thrower who just took a throw
 
-	public final SubscriberHandler <LaneObserver> subhandler;
+	private static String PAUSEFILE = "PAUSE.DAT";
+
+	private Vector state;
+
+	public SubscriberHandler <LaneObserver> subhandler;
 
 	/** Lane()
 	 * 
@@ -181,6 +193,7 @@ public class Lane extends Thread implements PinsetterObserver {
 		gameNumber = 0;
 
 		setter.subscribe( this );
+		state = new Vector();
 		
 		this.start();
 	}
@@ -192,6 +205,7 @@ public class Lane extends Thread implements PinsetterObserver {
 	public void run() {
 		
 		while (true) {
+			setState();
 			if (partyAssigned && !gameFinished) {	// we have a party on this lane, 
 								// so next bower can take a throw
 			
@@ -204,6 +218,7 @@ public class Lane extends Thread implements PinsetterObserver {
 
 				if (bowlerIterator.hasNext()) {
 					currentThrower = (Bowler)bowlerIterator.next();
+					curBowler++;
 
 					canThrowAgain = true;
 					tenthFrameStrike = false;
@@ -274,8 +289,9 @@ public class Lane extends Thread implements PinsetterObserver {
 					}
 				}
 			}
-			
-			
+
+			setState();
+
 			try {
 				sleep(10);
 			} catch (Exception ignored) {}
@@ -336,6 +352,7 @@ public class Lane extends Thread implements PinsetterObserver {
 	 */
 	private void resetBowlerIterator() {
 		bowlerIterator = (party.getMembers()).iterator();
+		curBowler = 0;
 	}
 
 	/** resetScores()
@@ -383,6 +400,50 @@ public class Lane extends Thread implements PinsetterObserver {
 		resetScores();
 	}
 
+	public void assignLaneObjToLane(Vector newlane) {
+		this.subhandler = (SubscriberHandler<LaneObserver>) newlane.get(1);
+		this.ball = (int) newlane.get(2);
+		this.bowlIndex = (int) newlane.get(3);
+		this.canThrowAgain = (boolean) newlane.get(4);
+		this.cumulScores = (int[][]) newlane.get(5);
+		this.currentThrower = (Bowler) newlane.get(6);
+		this.curScores = (int[]) newlane.get(7);
+		this.finalScores = (int[][]) newlane.get(8);
+		this.frameNumber = (int) newlane.get(9);
+		this.gameFinished = (boolean) newlane.get(10);
+		this.gameIsHalted = (boolean) newlane.get(11);
+		this.gameNumber = (int) newlane.get(12);
+		this.party = (Party) newlane.get(13);
+		this.partyAssigned = (boolean) newlane.get(14);
+		this.scorer = (Scorer) newlane.get(15);
+		this.setter = (Pinsetter) newlane.get(16);
+		this.tenthFrameStrike = (boolean) newlane.get(17);
+		this.scores = (HashMap) newlane.get(18);
+		this.curBowler = (int) newlane.get(19);
+	}
+
+	public void setState(){
+		state.add(expired);
+		state.add(subhandler);
+		state.add(ball);
+		state.add(bowlIndex);
+		state.add(canThrowAgain);
+		state.add(cumulScores);
+		state.add(currentThrower);
+		state.add(curScores);
+		state.add(finalScores);
+		state.add(frameNumber);
+		state.add(gameFinished);
+		state.add(gameIsHalted);
+		state.add(gameNumber);
+		state.add(party);
+		state.add(partyAssigned);
+		state.add(scorer);
+		state.add(setter);
+		state.add(tenthFrameStrike);
+		state.add(scores);
+		state.add(curBowler);
+	}
 	/** markScore()
 	 *
 	 * Method that marks a bowlers score on the board.
@@ -458,4 +519,32 @@ public class Lane extends Thread implements PinsetterObserver {
 		subhandler.publishLane(lanePublish());
 	}
 
+	public void pauseAndDump(){
+	    try {
+	    	Boolean isEmpty = false;
+	    	File newfile = new File(PAUSEFILE);
+	    	if(newfile.length() == 0){
+	    		isEmpty = true;
+			} else {
+	    		isEmpty = false;
+			}
+
+	    	if(isEmpty == false) {
+				FileInputStream fin = new FileInputStream(PAUSEFILE);
+				ObjectInputStream oin = new ObjectInputStream(fin);
+				Vector V = (Vector) oin.readObject();
+				V.add(state);
+				oin.close();
+				FileOutputStream fio = new FileOutputStream(PAUSEFILE);
+				ObjectOutputStream out = new ObjectOutputStream(fio);
+				out.writeObject(V);
+				out.close();
+			}
+		} catch (Exception e) { };
+	    pauseGame();
+	}
+
+	public void res(){
+		unPauseGame();
+	}
 }

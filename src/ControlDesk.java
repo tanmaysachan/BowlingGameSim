@@ -57,10 +57,12 @@ class ControlDesk extends Thread implements BowlerFileHandler {
 	/** The Subscriber handler class */
 	public SubscriberHandler <ControlDeskObserver> subhandler;
 
+	private static String PAUSEFILE = "PAUSE.bin";
+
     /**
      * Constructor for the ControlDesk class
      *
-     * @param numlanes	the numbler of lanes to be represented
+     * @param numLanes	the number of lanes to be represented
      *
      */
 
@@ -100,6 +102,43 @@ class ControlDesk extends Thread implements BowlerFileHandler {
      * Iterate through the available lanes and assign the paties in the wait queue if lanes are available.
      *
      */
+
+    public void pause(){
+
+    	Iterator it = lanes.iterator();
+    	while(it.hasNext()) {
+    		Lane curLane = (Lane) it.next();
+    		curLane.pauseAndDump();
+		}
+	}
+
+	public void res(){
+    	try {
+    		File f = new File(PAUSEFILE);
+    		if(f.length() == 0){
+    			return;
+			}
+			FileInputStream fin = new FileInputStream(PAUSEFILE);
+			ObjectInputStream oin = new ObjectInputStream(fin);
+			Vector V = (Vector) oin.readObject();
+			Iterator it = V.iterator();
+			Iterator lane = lanes.iterator();
+			Vector v = new Vector();
+			v.add(-1);
+			while(lane.hasNext()) {
+			    while(it.hasNext()) {
+					v = (Vector) it.next();
+					if((Boolean)v.get(0) == false){
+						break;
+					}
+				}
+				if((int)v.get(0) == -1) return;
+				Lane curLane = (Lane) lane.next();
+				curLane.assignLaneObjToLane(v);
+			}
+
+		} catch(Exception e){};
+	}
 
 	public void assignLane() {
 		Iterator it = lanes.iterator();
