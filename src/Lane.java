@@ -540,6 +540,15 @@ public class Lane extends Thread implements PinsetterObserver, Serializable {
 				out.writeObject(V);
 				out.close();
 			}
+	    	if(isEmpty == true){
+	    		Vector V = new Vector();
+	    		V.add(state);
+	    		newfile.createNewFile();
+	    		FileOutputStream fio = new FileOutputStream(PAUSEFILE);
+	    		ObjectOutputStream out = new ObjectOutputStream(fio);
+	    		out.writeObject(V);
+	    		out.close();
+			}
 		} catch (Exception e) { };
 	    pauseGame();
 	}

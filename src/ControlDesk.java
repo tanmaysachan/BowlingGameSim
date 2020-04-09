@@ -135,6 +135,7 @@ class ControlDesk extends Thread implements BowlerFileHandler {
 				if((int)v.get(0) == -1) return;
 				Lane curLane = (Lane) lane.next();
 				curLane.assignLaneObjToLane(v);
+				curLane.res();
 			}
 
 		} catch(Exception e){};
