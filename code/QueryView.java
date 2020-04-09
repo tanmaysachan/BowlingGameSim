@@ -11,6 +11,7 @@
  */
 
 import java.awt.*;
+import java.awt.List;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -68,7 +69,7 @@ public class QueryView implements ActionListener {
 		// Patron Panel
 		JPanel patronPanel = new JPanel();
 		patronPanel.setLayout(new GridLayout(3, 1));
-		patronPanel.setBorder(new TitledBorder("Nick Name"));
+		patronPanel.setBorder(new TitledBorder("Enter Details"));
 
 		JPanel nickPanel = new JPanel();
 		nickPanel.setLayout(new FlowLayout());
@@ -137,7 +138,21 @@ public class QueryView implements ActionListener {
 			}
 			party.add(result);
 		    partyList.setListData(party);
-			System.out.println(result);
+		    
+		    Vector vec = new Vector();
+		    
+		    try {
+		    	vec = ScoreHistoryFile.getlastScores(nick);
+		    }
+		    catch (Exception e1) {
+				result = "File Error";
+				System.err.println("File Error wow");
+			}
+		    for (int i=0;i<vec.size();i++) {
+		    	String s = vec.elementAt(i).toString();
+				party.add(s);
+			    partyList.setListData(party);
+		    }
 			try {
 			    String res = ScoreHistoryFile.high_score();
 			    result = "Top Player : " + res;
@@ -147,7 +162,6 @@ public class QueryView implements ActionListener {
 				result = "File Error";
 				System.err.println("File Error");
 			}
-			System.out.println(result);
 			party.add(result);
 		    partyList.setListData(party);
 		}
