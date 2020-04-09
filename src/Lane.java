@@ -257,9 +257,9 @@ public class Lane extends Thread implements PinsetterObserver {
 					Iterator scoreIt = party.getMembers().iterator();
 					party = null;
 					partyAssigned = false;
-					
+
 					subhandler.publishLane(lanePublish());
-					
+
 					int myIndex = 0;
 					while (scoreIt.hasNext()){
 						Bowler thisBowler = (Bowler)scoreIt.next();
